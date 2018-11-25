@@ -35,14 +35,17 @@ QvdSymbol.__repr__ = lambda x: repr(f'QvdSymbol[{x.Type}|{x.IntValue}|{x.DoubleV
 def get_symbols(qvd_field):
     # symtype = symtype_mapping[qvd_field.Type]
     # assert
+    # bit 1 = int; bit 2 = double; bit 4 = string ?
     def get_sym_by_type(qvd_symbol):
-        if qvd_symbol.Type == 2:
+        if qvd_symbol.Type in (2, 6):
             return qvd_symbol.DoubleValue
-        elif qvd_symbol.Type == 1:
+        elif qvd_symbol.Type in (1, 5):
             return qvd_symbol.IntValue
         elif qvd_symbol.Type == 4:
             return qvd_symbol.StringValue
         else:
+            # FIXME: use logging?
+            print(f'Unknown type: {qvd_symbol.Type}')
             return None
 
     return ([get_sym_by_type(x) for x in qvd_field.Symbols], qvd_field.Type)
