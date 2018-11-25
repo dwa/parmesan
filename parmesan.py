@@ -19,13 +19,9 @@ def read_qvd(qvd_file):
     idx_mtx = np.array(th.Indices, dtype=np.int64).reshape((th.NoOfRecords, -1))
     df = pd.DataFrame(idx_mtx)
 
-
-    def fix_col(i):
-        col = df[i].astype('category')
-        col.cat.categories, _field_type = get_symbols(th.Fields[i])
-        return col
-
-    df2 = pd.concat([fix_col(x) for x in df], axis=1)
+    # buildup a map that renames indices to their corresponding symbol
+    idx_mapping = {i: pd.Series(get_symbols(fld)[0]).to_dict() for (i, fld) in enumerate(th.Fields)}
+    df2 = pd.concat([df[i].map(idx_mapping[i]) for i in df], axis=1)
 
     colnames = [x.FieldName for x in th.Fields]
     df2.columns = colnames
