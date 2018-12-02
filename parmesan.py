@@ -5,11 +5,15 @@ import pandas as pd
 
 from qvd import QvdFile, get_symbols
 
-# FIXME: category or datatype, should be settable based on ratio: (field length) / NoOfRecords
-#
-# symtype_to_dtype =  {'REAL': np.double,
-#                      'INTEGER': np.int64,
-#                      'UNKNOWN': np.str}
+QLIK_EPOCH_ORIGIN_STR = '1899-12-30'
+QLIK_ORIGIN =  pd.Timestamp(QLIK_EPOCH_ORIGIN_STR)
+
+
+def transform_symbol_type(symbols, qvd_field_type):
+    return (pd.to_datetime(symbols, unit='D', origin=QLIK_ORIGIN)
+            if qvd_field_type in ('DATE', 'TIMESTAMP')
+            else symbols)
+
 
 def read_qvd(qvd_file):
 
@@ -26,7 +30,8 @@ def read_qvd(qvd_file):
     df.columns = range(len(th.Fields))
 
     # buildup a map that renames indices to their corresponding symbol
-    idx_mapping = {i: pd.Series(get_symbols(fld)[0]).to_dict() for (i, fld) in enumerate(th.Fields)}
+    idx_mapping = {i: pd.Series(transform_symbol_type(*get_symbols(fld))).to_dict()
+                   for (i, fld) in enumerate(th.Fields)}
     df2 = pd.concat([df[i].map(idx_mapping[i]) for i in df], axis=1)
 
     colnames = [x.FieldName for x in th.Fields]
