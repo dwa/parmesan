@@ -19,6 +19,12 @@ def read_qvd(qvd_file):
     idx_mtx = np.array(th.Indices, dtype=np.int64).reshape((th.NoOfRecords, -1))
     df = pd.DataFrame(idx_mtx)
 
+    # insert missing columns; columns are missing if they only contain a single symbol
+    for i, col in enumerate(th.Fields):
+        if col.BitWidth == 0:
+            df.insert(i, f'{i}a', 0, True)
+    df.columns = range(len(th.Fields))
+
     # buildup a map that renames indices to their corresponding symbol
     idx_mapping = {i: pd.Series(get_symbols(fld)[0]).to_dict() for (i, fld) in enumerate(th.Fields)}
     df2 = pd.concat([df[i].map(idx_mapping[i]) for i in df], axis=1)
