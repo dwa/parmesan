@@ -19,4 +19,4 @@ RUN conda update --all --yes
 RUN conda install --yes pkgconfig pkg-config pkgconfig libxml2
 RUN pip install --find-links=https://cern.ch/wlav/wheels/cppyy-cling cppyy-cling --no-cache-dir --no-index
 RUN pip install cppyy --no-cache-dir --no-binary :all:
-RUN conda install --yes ipython numpy pandas
+RUN conda install --yes ipython numpy pandas pyarrow click
