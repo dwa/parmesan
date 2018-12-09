@@ -44,12 +44,12 @@ def read_qvd(qvd_file):
     return df2
 
 
-def convert_qvd_to_parquet(qvd_file, pq_file):
-    read_qvd(qvd_file).write_parquet(pq_file)
+def qvd_to_parquet(qvd_file, pq_file, overwrite=False):
 
+    if not overwrite and os.path.exists(pq_file):
+        raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), pq_file)
 
-def convert_qvd_tree(qvd_prefix, pq_prefix, recursive=False):
-    pass
+    read_qvd(qvd_file).to_parquet(pq_file)
 
 
 ## Local Variables: ***
