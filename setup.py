@@ -10,11 +10,12 @@ setup(
     author_email='parmesan@datawrangler.ninja',
     url='https://github.com/dwa/parmesan',
     packages=['parmesan'],
-    # entry_points={
-    #     'console_scripts': [
-    #         'script-name=parmesan:cli'
-    #     ]
-    # },
+    entry_points={
+        'console_scripts': [
+            'debug-qvd=parmesan.cli:debug_qvd',
+            'convert-qvd-to-parquet=parmesan.cli:convert_qvd_to_parquet'
+        ]
+    },
     include_package_data=True,
     install_requires=requirements,
     keywords='parmesan',
