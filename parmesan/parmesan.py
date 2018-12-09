@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import errno
+import os
 # from pathlib import Path
 
 import numpy as np
@@ -17,6 +19,9 @@ def transform_symbol_type(symbols, qvd_field_type):
 
 
 def read_qvd(qvd_file):
+
+    if not os.path.exists(qvd_file):
+        raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), qvd_file)
 
     q = QvdFile()
     q.Load(qvd_file)
