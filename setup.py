@@ -22,3 +22,8 @@ setup(
 #        'Programming Language :: Python :: 3.7',
 #    ]
 )
+
+## Local Variables: ***
+## mode:python ***
+## coding: utf-8 ***
+## End: ***

@@ -76,3 +76,8 @@ if __name__ == '__main__':
         #df = read_qvd(sys.argv[1])
 
     embed()
+
+## Local Variables: ***
+## mode:python ***
+## coding: utf-8 ***
+## End: ***

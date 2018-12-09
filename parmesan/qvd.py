@@ -51,3 +51,8 @@ def get_symbols(qvd_field):
             return None
 
     return ([get_sym_by_type(x) for x in qvd_field.Symbols], qvd_field.Type)
+
+## Local Variables: ***
+## mode:python ***
+## coding: utf-8 ***
+## End: ***
