@@ -6,8 +6,8 @@ import pandas as pd
 
 from qvd import QvdFile, get_symbols
 
-QLIK_EPOCH_ORIGIN_STR = '1899-12-30'
-QLIK_ORIGIN =  pd.Timestamp(QLIK_EPOCH_ORIGIN_STR)
+QLIK_EPOCH_ORIGIN_STR='1899-12-30'
+QLIK_ORIGIN=pd.Timestamp(QLIK_EPOCH_ORIGIN_STR)
 
 
 def transform_symbol_type(symbols, qvd_field_type):
