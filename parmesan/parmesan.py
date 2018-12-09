@@ -4,7 +4,7 @@
 import numpy as np
 import pandas as pd
 
-from qvd import QvdFile, get_symbols
+from .qvd import QvdFile, get_symbols
 
 QLIK_EPOCH_ORIGIN_STR='1899-12-30'
 QLIK_ORIGIN=pd.Timestamp(QLIK_EPOCH_ORIGIN_STR)
