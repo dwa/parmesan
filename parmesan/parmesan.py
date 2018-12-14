@@ -27,8 +27,10 @@ def read_qvd(qvd_file):
     idx_mtx = np.array(th.Indices, dtype=np.int64).reshape((th.NoOfRecords, -1))
     df = pd.DataFrame(idx_mtx)
 
+    sorted_fields = sorted(th.Fields, key=lambda x: x.BitOffset)
+
     # insert missing columns; columns are missing if they only contain a single symbol
-    for i, col in enumerate(th.Fields):
+    for i, col in enumerate(sorted_fields):
         if col.BitWidth == 0:
             df.insert(i, f'{i}a', 0, True)
     df.columns = range(len(th.Fields))
