@@ -37,10 +37,10 @@ def read_qvd(qvd_file):
 
     # buildup a map that renames indices to their corresponding symbol
     idx_mapping = {i: pd.Series(transform_symbol_type(*get_symbols(fld))).to_dict()
-                   for (i, fld) in enumerate(th.Fields)}
+                   for (i, fld) in enumerate(sorted_fields)}
     df2 = pd.concat([df[i].map(idx_mapping[i]) for i in df], axis=1)
 
-    colnames = [x.FieldName for x in th.Fields]
+    colnames = [x.FieldName for x in sorted_fields]
     df2.columns = colnames
 
     return df2
