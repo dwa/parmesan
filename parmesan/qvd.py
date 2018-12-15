@@ -35,15 +35,18 @@ QvdSymbol.__repr__ = lambda x: repr(f'QvdSymbol[{x.Type}|{x.IntValue}|{x.DoubleV
 #                    'UNKNOWN': 4}
 
 
-def get_symbols(qvd_field):
+def get_symbols(qvd_field, default_dual_str=0):
 
     # bit 1 = int; bit 2 = double; bit 4 = string ?
     def get_sym_by_type(qvd_symbol):
-        if qvd_symbol.Type in (2, 6):
+
+        if default_dual_str and (qvd_symbol.Type & 4*default_dual_str):
+            return qvd_symbol.StringValue
+        elif (qvd_symbol.Type & 2) > 0:
             return qvd_symbol.DoubleValue
-        elif qvd_symbol.Type in (1, 5):
+        elif (qvd_symbol.Type & 1) > 0:
             return qvd_symbol.IntValue
-        elif qvd_symbol.Type == 4:
+        elif (qvd_symbol.Type & 4) > 0:
             return qvd_symbol.StringValue
         else:
             # FIXME: use logging?

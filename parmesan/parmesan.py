@@ -16,7 +16,7 @@ def transform_symbol_type(symbols, qvd_field_type):
             else symbols)
 
 
-def read_qvd(qvd_file):
+def read_qvd(qvd_file, use_string_default=False, invert_dual_for_field=None):
 
     if not os.path.exists(qvd_file):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), qvd_file)
@@ -35,8 +35,16 @@ def read_qvd(qvd_file):
             df.insert(i, f'{i}a', 0, True)
     df.columns = range(len(th.Fields))
 
+    def default_dual_type(field):
+        if isinstance(invert_dual_for_field, list):
+            default_type = (not use_string_default) if (field.FieldName in invert_dual_for_field) else use_string_default
+        else:
+            default_type = use_string_default
+        return default_type
+
     # buildup a map that renames indices to their corresponding symbol
-    idx_mapping = {i: pd.Series(transform_symbol_type(*get_symbols(fld))).to_dict()
+    idx_mapping = {i: (pd.Series(transform_symbol_type(*get_symbols(fld, default_dual_type(fld))))
+                         .to_dict())
                    for (i, fld) in enumerate(sorted_fields)}
     df2 = pd.concat([df[i].map(idx_mapping[i]) for i in df], axis=1)
 
