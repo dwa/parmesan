@@ -10,8 +10,12 @@ QLIK_EPOCH_ORIGIN_STR='1899-12-30'
 QLIK_ORIGIN=pd.Timestamp(QLIK_EPOCH_ORIGIN_STR)
 
 
+def convert_qlikcol_to_dt(col):
+    return pd.to_datetime(col, unit='D', origin=QLIK_ORIGIN)
+
+
 def transform_symbol_type(symbols, qvd_field_type):
-    return (pd.to_datetime(symbols, unit='D', origin=QLIK_ORIGIN)
+    return (convert_qlikcol_to_dt(symbols)
             if qvd_field_type in ('DATE', 'TIMESTAMP')
             else symbols)
 
