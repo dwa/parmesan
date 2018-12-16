@@ -20,7 +20,7 @@ def transform_symbol_type(symbols, qvd_field_type):
             else symbols)
 
 
-def read_qvd(qvd_file, use_string_default=False, invert_dual_for_field=None):
+def read_qvd(qvd_file, use_string_default=False, invert_dual_for_field=None, field_types=None):
 
     if not os.path.exists(qvd_file):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), qvd_file)
@@ -46,8 +46,14 @@ def read_qvd(qvd_file, use_string_default=False, invert_dual_for_field=None):
             default_type = use_string_default
         return default_type
 
+    def prep_symbols(field):
+        symbols, ftype = get_symbols(field, default_dual_type(field))
+        if isinstance(field_types, dict) and field.FieldName in field_types:
+            ftype = field_types[field.FieldName]
+        return transform_symbol_type(symbols, ftype)
+
     # buildup a map that renames indices to their corresponding symbol
-    idx_mapping = {i: (pd.Series(transform_symbol_type(*get_symbols(fld, default_dual_type(fld))))
+    idx_mapping = {i: (pd.Series(prep_symbols(fld))
                          .to_dict())
                    for (i, fld) in enumerate(sorted_fields)}
     df2 = pd.concat([df[i].map(idx_mapping[i]) for i in df], axis=1)
