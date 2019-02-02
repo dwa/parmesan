@@ -21,4 +21,5 @@ rule convert_qvds:
     #     "benchmarks/{table}.benchmark"
     # log: "logs/{table}.log"
     shell:
-        "bash -c 'mkdir -p $(dirname {output}); touch {output}'"
+#        "bash -c 'mkdir -p $(dirname {output}); touch {output}'"
+        "bash -c 'mkdir -p $(dirname {output}); convert-qvd-to-parquet \"{input}\" --out \"{output}\"  --overwrite'"
