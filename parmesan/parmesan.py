@@ -74,7 +74,11 @@ def qvd_to_parquet(qvd_file, pq_file, overwrite=False):
     if not overwrite and os.path.exists(pq_file):
         raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), pq_file)
 
-    read_qvd(qvd_file).to_parquet(pq_file)
+    df = read_qvd(qvd_file)
+    # needed to deal with columns of mixed type (pandas issue #21228):
+    dtypes = {p.index: str for p in df.dtypes.reset_index().itertuples() if p._2 == 'object'}
+
+    df.astype(dtypes).to_parquet(pq_file)
 
 
 ## Local Variables: ***
