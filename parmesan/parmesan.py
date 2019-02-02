@@ -34,16 +34,20 @@ def read_qvd(qvd_file, use_string_default=False, invert_dual_for_field=None, fie
     q = QvdFile()
     q.Load(qvd_file)
     th = q.GetTableHeader()
-    idx_mtx = np.array(th.Indices, dtype=np.int64).reshape((th.NoOfRecords, -1))
-    df = pd.DataFrame(idx_mtx)
 
     sorted_fields = sorted(th.Fields, key=lambda x: x.BitOffset)
 
-    # insert missing columns; columns are missing if they only contain a single symbol
-    for i, col in enumerate(sorted_fields):
-        if col.BitWidth == 0:
-            df.insert(i, f'{i}a', 0, True)
-    df.columns = range(len(th.Fields))
+    if th.NoOfRecords > 0:
+        idx_mtx = np.array(th.Indices, dtype=np.int64).reshape((th.NoOfRecords, -1))
+        df = pd.DataFrame(idx_mtx)
+
+        # insert missing columns; columns are missing if they only contain a single symbol
+        for i, col in enumerate(sorted_fields):
+            if col.BitWidth == 0:
+                df.insert(i, f'{i}a', 0, True)
+        df.columns = range(len(th.Fields))
+    else:
+        df = pd.DataFrame([], columns=range(len(sorted_fields)))
 
     def default_dual_type(field):
         if isinstance(invert_dual_for_field, list):
