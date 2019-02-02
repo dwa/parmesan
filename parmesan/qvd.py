@@ -53,7 +53,7 @@ def get_symbols(qvd_field, default_dual_str=0):
             print(f'Unknown type: {qvd_symbol.Type}')
             return None
 
-    return ([get_sym_by_type(x) for x in qvd_field.Symbols], qvd_field.Type)
+    return ((get_sym_by_type(x) for x in qvd_field.Symbols), qvd_field.Type)
 
 ## Local Variables: ***
 ## mode:python ***
