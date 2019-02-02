@@ -6,18 +6,24 @@ import pandas as pd
 
 from .qvd import QvdFile, get_symbols
 
-QLIK_EPOCH_ORIGIN_STR='1899-12-30'
-QLIK_ORIGIN=pd.Timestamp(QLIK_EPOCH_ORIGIN_STR)
+
+QLIK_EPOCH_ORIGIN_STR = '1899-12-30'
+QLIK_ORIGIN = pd.Timestamp(QLIK_EPOCH_ORIGIN_STR)
+
+MAX_TS = (pd.Timestamp.max - QLIK_ORIGIN).days
 
 
 def convert_qlikcol_to_dt(col):
-    return pd.to_datetime(col, unit='D', origin=QLIK_ORIGIN)
+    capped_dt = col.where(col <= MAX_TS, MAX_TS)
+    return (pd.to_datetime(capped_dt, unit='D', origin=QLIK_ORIGIN)
+            .astype('datetime64[ms]'))
 
 
 def transform_symbol_type(symbols, qvd_field_type):
-    return (convert_qlikcol_to_dt(symbols)
+    syms = pd.Series(symbols)
+    return (convert_qlikcol_to_dt(syms)
             if qvd_field_type in ('DATE', 'TIMESTAMP')
-            else symbols)
+            else syms)
 
 
 def read_qvd(qvd_file, use_string_default=False, invert_dual_for_field=None, field_types=None):
@@ -53,8 +59,7 @@ def read_qvd(qvd_file, use_string_default=False, invert_dual_for_field=None, fie
         return transform_symbol_type(symbols, ftype)
 
     # buildup a map that renames indices to their corresponding symbol
-    idx_mapping = {i: (pd.Series(prep_symbols(fld))
-                         .to_dict())
+    idx_mapping = {i: (prep_symbols(fld).to_dict())
                    for (i, fld) in enumerate(sorted_fields)}
     df2 = pd.concat([df[i].map(idx_mapping[i]) for i in df], axis=1)
 
