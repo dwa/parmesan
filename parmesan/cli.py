@@ -1,3 +1,4 @@
+from pathlib import Path
 import click
 
 from .qvd import QvdFile, get_symbols
@@ -41,7 +42,14 @@ def debug_qvd(qvd_file):
 
 @click.command()
 @click.argument('qvd-file')
-@click.option('--out-file', default='outfile.parquet', show_default=True)
+@click.option('--out', default='outfile.parquet', show_default=True)
 @click.option('--overwrite/--no-overwrite', default=False, show_default=True)
-def convert_qvd_to_parquet(qvd_file, out_file, overwrite):
+def convert_qvd_to_parquet(qvd_file, out, overwrite):
+
+    out_file = Path(out).resolve()
+
+    if out_file.is_dir():
+        pq_file = Path(qvd_file).stem + '.pq'
+        out_file /= pq_file
+
     qvd_to_parquet(qvd_file, out_file, overwrite)
