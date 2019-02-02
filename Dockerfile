@@ -19,3 +19,8 @@ RUN conda update --all --yes
 RUN conda install --yes pkgconfig pkg-config pkgconfig libxml2
 RUN pip install cppyy
 RUN conda install --yes ipython numpy pandas pyarrow click
+# only for py3.6 available for now:
+#RUN conda install --yes -c bioconda snakemake
+RUN conda install --yes datrie wrapt pyyaml appdirs docutils configargparse jsonschema gitdb2 smmap2 gitpython
+RUN conda install --yes -c conda-forge ratelimiter
+RUN pip install snakemake
