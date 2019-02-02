@@ -1,6 +1,8 @@
 from setuptools import setup
 
-requirements = ['pandas', 'click']
+requirements = ['pandas',
+                'click',
+                'cppyy']
 
 setup(
     name='parmesan',
