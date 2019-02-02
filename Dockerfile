@@ -17,6 +17,5 @@ RUN . /miniconda3/etc/profile.d/conda.sh
 RUN echo ". /miniconda3/etc/profile.d/conda.sh" >> /root/.bashrc
 RUN conda update --all --yes
 RUN conda install --yes pkgconfig pkg-config pkgconfig libxml2
-RUN pip install --find-links=https://cern.ch/wlav/wheels/cppyy-cling cppyy-cling --no-cache-dir --no-index
-RUN pip install cppyy --no-cache-dir --no-binary :all:
+RUN pip install cppyy
 RUN conda install --yes ipython numpy pandas pyarrow click
