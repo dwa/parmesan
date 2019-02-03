@@ -1,19 +1,19 @@
-
-
 from pathlib import Path
-samples = [('parquets'/x.relative_to('QVDs').parent / (x.stem + '.pq')).as_posix() for x in Path('QVDs').glob('**/*.qvd')]
 
+SRC = 'qvd'
+TGT = 'pq'
+
+convert_to = [(TGT/x.relative_to(SRC).parent / (x.stem + '.pq')).as_posix()
+              for x in Path(SRC).glob('**/*.qvd')]
 
 rule all:
-    input: samples
+    input: convert_to
 
-# rule prune:
-
-rule convert_qvds:
+rule sync_convert:
     input:
-        "QVDs/{table}.qvd"
+        f"{SRC}/{{table}}.qvd"
     output:
-        "parquets/{table}.pq"
+        f"{TGT}/{{table}}.pq"
     # conda:
     #     "envs/qvds.yaml"
     # threads: 8
@@ -21,5 +21,4 @@ rule convert_qvds:
     #     "benchmarks/{table}.benchmark"
     # log: "logs/{table}.log"
     shell:
-#        "bash -c 'mkdir -p $(dirname {output}); touch {output}'"
         "bash -c 'mkdir -p $(dirname {output}); convert-qvd-to-parquet \"{input}\" --out \"{output}\"  --overwrite'"

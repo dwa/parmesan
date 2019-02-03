@@ -15,7 +15,8 @@ setup(
     entry_points={
         'console_scripts': [
             'debug-qvd=parmesan.cli:debug_qvd',
-            'convert-qvd-to-parquet=parmesan.cli:convert_qvd_to_parquet'
+            'convert-qvd-to-parquet=parmesan.cli:convert_qvd_to_parquet',
+            'sync-prune-parquet-tree=parmesan.cli.prune_parquet_tree'
         ]
     },
     include_package_data=True,

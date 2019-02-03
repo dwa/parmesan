@@ -53,3 +53,17 @@ def convert_qvd_to_parquet(qvd_file, out, overwrite):
         out_file /= pq_file
 
     qvd_to_parquet(qvd_file, out_file, overwrite)
+
+
+@click.command()
+@click.option('--qvd', default='qvd', show_default=True)
+@click.option('--pq', default='pq', show_default=True)
+def prune_parquet_tree(qvd, pq):
+    SRC = qvd
+    TGT = pq
+
+    exists_pq = set((x.relative_to(TGT).parent / x.stem).as_posix() for x in Path(TGT).glob('**/*.pq'))
+    exists_qvd = set((x.relative_to(SRC).parent / x.stem).as_posix() for x in Path(SRC).glob('**/*.qvd'))
+
+    for x in (exists_pq - exists_qvd):
+        (Path(TGT) / (x+'.pq')).unlink()
