@@ -82,7 +82,10 @@ def qvd_to_parquet(qvd_file, pq_file, overwrite=False):
     # needed to deal with columns of mixed type (pandas issue #21228):
     dtypes = {p.index: str for p in df.dtypes.reset_index().itertuples() if p._2 == 'object'}
 
-    df.astype(dtypes).to_parquet(pq_file)
+    df.astype(dtypes).to_parquet(pq_file,
+                                 engine='pyarrow',
+                                 compression='snappy',
+                                 index=False)
 
 
 ## Local Variables: ***
