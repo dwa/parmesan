@@ -1,4 +1,6 @@
+from urllib.parse import urlparse
 from pathlib import Path
+
 import click
 
 from .qvd import QvdFile, get_symbols
@@ -44,15 +46,31 @@ def debug_qvd(qvd_file):
 @click.argument('qvd-file')
 @click.option('--out', default='outfile.parquet', show_default=True)
 @click.option('--overwrite/--no-overwrite', default=False, show_default=True)
-def convert_qvd_to_parquet(qvd_file, out, overwrite):
+@click.option('--cast-real', flag_value='REAL', default=False)
+@click.option('--cast-integer', flag_value='INTEGER', default=False)
+@click.option('--cast-fix', flag_value='FIX', default=False)
+@click.option('--cast-ascii', flag_value='ASCII', default=False)
+@click.option('--cast-date', flag_value='DATE', default=False)
+@click.option('--cast-time', flag_value='TIME', default=False)
+@click.option('--cast-timestamp', flag_value='TIMESTAMP', default=False)
+def convert_qvd_to_parquet(qvd_file, out, overwrite, cast_real, cast_integer,
+                           cast_fix, cast_ascii, cast_date, cast_time, cast_timestamp):
 
-    out_file = Path(out).resolve()
+    urlres = urlparse(out)
+    if urlres.scheme in ('', 'file'):
+        out_file = Path(urlres.path).resolve()
 
-    if out_file.is_dir():
-        pq_file = Path(qvd_file).stem + '.pq'
-        out_file /= pq_file
+        if out_file.is_dir():
+            pq_file = Path(qvd_file).with_suffix('.pq')
+            out_file /= pq_file
+    else:
+        out_file = out
 
-    qvd_to_parquet(qvd_file, out_file, overwrite)
+    cast_types = [x for x in [cast_real, cast_integer, cast_fix, cast_ascii,
+                              cast_date, cast_time, cast_timestamp]
+                  if x is not None]
+
+    qvd_to_parquet(qvd_file, out_file, overwrite, cast_types)
 
 
 @click.command()
@@ -67,3 +85,9 @@ def prune_parquet_tree(qvd, pq):
 
     for x in (exists_pq - exists_qvd):
         (Path(TGT) / (x+'.pq')).unlink()
+
+
+## Local Variables: ***
+## mode:python ***
+## coding: utf-8 ***
+## End: ***

@@ -19,14 +19,27 @@ def convert_qlikcol_to_dt(col):
             .astype('datetime64[ms]'))
 
 
-def transform_symbol_type(symbols, qvd_field_type):
-    syms = pd.Series(symbols)
-    return (convert_qlikcol_to_dt(syms)
-            if qvd_field_type in ('DATE', 'TIMESTAMP')
-            else syms)
+def transform_symbol_type(symbols, qvd_field_type, field_name):
+
+    if qvd_field_type in ('DATE', 'TIMESTAMP', 'TIME'):
+        return convert_qlikcol_to_dt(symbols)
+    qvd_types = {'REAL': np.float64,
+                 'INTEGER': np.int64,
+                 'FIX': np.float64}
+
+    convert_to = qvd_types.get(qvd_field_type, False)
+
+    if convert_to:
+        try:
+            return symbols.astype(convert_to)
+        except ValueError as e:
+            raise RuntimeError(f"Failed to convert field '{field_name}' to type {qvd_field_type}") from e
+    else:
+        return symbols
 
 
-def read_qvd(qvd_file, use_string_default=False, invert_dual_for_field=None, field_types=None):
+def read_qvd(qvd_file, use_string_default=False, invert_dual_for_field=None,
+             field_types=None, cast_types=[]):
 
     if not os.path.exists(qvd_file):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), qvd_file)
@@ -60,7 +73,8 @@ def read_qvd(qvd_file, use_string_default=False, invert_dual_for_field=None, fie
         symbols, ftype = get_symbols(field, default_dual_type(field))
         if isinstance(field_types, dict) and field.FieldName in field_types:
             ftype = field_types[field.FieldName]
-        return transform_symbol_type(symbols, ftype)
+        symbols = pd.Series(symbols)
+        return transform_symbol_type(symbols, ftype, field.FieldName) if (ftype in cast_types) else symbols
 
     # buildup a map that renames indices to their corresponding symbol
     idx_mapping = {i: (prep_symbols(fld).to_dict())
@@ -73,12 +87,12 @@ def read_qvd(qvd_file, use_string_default=False, invert_dual_for_field=None, fie
     return df2
 
 
-def qvd_to_parquet(qvd_file, pq_file, overwrite=False):
+def qvd_to_parquet(qvd_file, pq_file, overwrite=False, cast_types=[]):
 
     if not overwrite and os.path.exists(pq_file):
         raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), pq_file)
 
-    df = read_qvd(qvd_file)
+    df = read_qvd(qvd_file, cast_types=cast_types)
     # needed to deal with columns of mixed type (pandas issue #21228):
     dtypes = {p.index: str for p in df.dtypes.reset_index().itertuples() if p._2 == 'object'}
 
