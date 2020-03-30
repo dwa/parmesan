@@ -87,7 +87,7 @@ def read_qvd(qvd_file, use_string_default=False, invert_dual_for_field=None,
     return df2
 
 
-def qvd_to_parquet(qvd_file, pq_file, overwrite=False, cast_types=[]):
+def qvd_to_parquet(qvd_file, pq_file, overwrite=False, cast_types=[], row_group_size=500000):
 
     if not overwrite and os.path.exists(pq_file):
         raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), pq_file)
@@ -99,7 +99,8 @@ def qvd_to_parquet(qvd_file, pq_file, overwrite=False, cast_types=[]):
     df.astype(dtypes).to_parquet(pq_file,
                                  engine='pyarrow',
                                  compression='snappy',
-                                 index=False)
+                                 index=False,
+                                 row_group_size=row_group_size)
 
 
 ## Local Variables: ***
