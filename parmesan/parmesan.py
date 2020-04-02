@@ -4,6 +4,8 @@ import os
 import numpy as np
 import pandas as pd
 
+from tqdm import tqdm
+
 from .qvd import QvdFile, get_symbols
 
 
@@ -24,7 +26,7 @@ def transform_symbol_type(symbols, qvd_field_type, field_name):
     if qvd_field_type in ('DATE', 'TIMESTAMP', 'TIME'):
         return convert_qlikcol_to_dt(symbols)
     qvd_types = {'REAL': np.float64,
-                 'INTEGER': np.int64,
+                 'INTEGER': 'Int64',
                  'FIX': np.float64}
 
     convert_to = qvd_types.get(qvd_field_type, False)
@@ -38,8 +40,20 @@ def transform_symbol_type(symbols, qvd_field_type, field_name):
         return symbols
 
 
+def mk_series(symbols):
+    try:
+        return pd.Series(symbols, dtype='Int64')
+    except:
+        pass
+    try:
+        return pd.Series(symbols, dtype='float64')
+    except:
+        pass
+    return pd.Series(symbols)
+
+
 def read_qvd(qvd_file, use_string_default=False, invert_dual_for_field=None,
-             field_types=None, cast_types=[]):
+             field_types=None, cast_types=[], progress=True):
 
     if not os.path.exists(qvd_file):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), qvd_file)
@@ -73,26 +87,25 @@ def read_qvd(qvd_file, use_string_default=False, invert_dual_for_field=None,
         symbols, ftype = get_symbols(field, default_dual_type(field))
         if isinstance(field_types, dict) and field.FieldName in field_types:
             ftype = field_types[field.FieldName]
-        symbols = pd.Series(symbols)
+        symbols = mk_series(list(symbols))
         return transform_symbol_type(symbols, ftype, field.FieldName) if (ftype in cast_types) else symbols
 
-    # buildup a map that renames indices to their corresponding symbol
-    idx_mapping = {i: (prep_symbols(fld).to_dict())
-                   for (i, fld) in enumerate(sorted_fields)}
-    df2 = pd.concat([df[i].map(idx_mapping[i]) for i in df], axis=1)
-
-    colnames = [x.FieldName for x in sorted_fields]
-    df2.columns = colnames
-
-    return df2
+    enum_sorted_fields = enumerate(sorted_fields)
+    for (i, fld) in (tqdm(enum_sorted_fields, total=len(sorted_fields)) if progress else enum_sorted_fields) :
+        # buildup a map that renames indices to their corresponding symbol:
+        value_mapping = prep_symbols(fld).to_dict()
+        df[i] = df[i].map(value_mapping)
+    df.columns = [x.FieldName for x in sorted_fields]
+    return df
 
 
-def qvd_to_parquet(qvd_file, pq_file, overwrite=False, cast_types=[], row_group_size=500000):
+def qvd_to_parquet(qvd_file, pq_file, overwrite=False, cast_types=[],
+                   row_group_size=500000, progress=True):
 
     if not overwrite and os.path.exists(pq_file):
         raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), pq_file)
 
-    df = read_qvd(qvd_file, cast_types=cast_types)
+    df = read_qvd(qvd_file, cast_types=cast_types, progress=progress)
     # needed to deal with columns of mixed type (pandas issue #21228):
     dtypes = {p.index: str for p in df.dtypes.reset_index().itertuples() if p._2 == 'object'}
 

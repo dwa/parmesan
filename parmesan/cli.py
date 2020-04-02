@@ -54,9 +54,10 @@ def debug_qvd(qvd_file):
 @click.option('--cast-time', flag_value='TIME', default=False)
 @click.option('--cast-timestamp', flag_value='TIMESTAMP', default=False)
 @click.option('--row-group-size', default=500000, type=int, show_default=True)
+@click.option('--progress/--no-progress', default=True, show_default=True)
 def convert_qvd_to_parquet(qvd_file, out, overwrite, cast_real, cast_integer,
                            cast_fix, cast_ascii, cast_date, cast_time, cast_timestamp,
-                           row_group_size):
+                           row_group_size, progress):
 
     urlres = urlparse(out)
     if urlres.scheme in ('', 'file'):
@@ -72,7 +73,7 @@ def convert_qvd_to_parquet(qvd_file, out, overwrite, cast_real, cast_integer,
                               cast_date, cast_time, cast_timestamp]
                   if x is not None]
 
-    qvd_to_parquet(qvd_file, out_file, overwrite, cast_types, row_group_size)
+    qvd_to_parquet(qvd_file, out_file, overwrite, cast_types, row_group_size, progress)
 
 
 @click.command()

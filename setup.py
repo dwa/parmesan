@@ -2,7 +2,8 @@ from setuptools import setup
 
 requirements = ['pandas',
                 'click',
-                'cppyy']
+                'cppyy',
+                'tqdm']
 
 setup(
     name='parmesan',
