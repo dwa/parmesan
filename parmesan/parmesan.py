@@ -12,7 +12,7 @@ from .qvd import QvdFile, get_symbols
 QLIK_EPOCH_ORIGIN_STR = '1899-12-30'
 QLIK_ORIGIN = pd.Timestamp(QLIK_EPOCH_ORIGIN_STR)
 
-MAX_TS = (pd.Timestamp.max - QLIK_ORIGIN).days
+MAX_TS = (pd.Timestamp.max.to_pydatetime() - QLIK_ORIGIN.to_pydatetime()).days
 
 
 def convert_qlikcol_to_dt(col):
