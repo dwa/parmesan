@@ -65,7 +65,8 @@ def read_qvd(qvd_file, use_string_default=False, invert_dual_for_field=None,
     sorted_fields = sorted(th.Fields, key=lambda x: x.BitOffset)
 
     if th.NoOfRecords > 0:
-        idx_mtx = np.asarray(th.Indices, dtype=np.int64).reshape((th.NoOfRecords, -1))
+        # FIXME: set dtype based on no of rows (or max cardinality):
+        idx_mtx = np.asarray(th.Indices, dtype=np.int32).reshape((th.NoOfRecords, -1))
         df = pd.DataFrame(idx_mtx)
 
         # insert missing columns; columns are missing if they only contain a single symbol
